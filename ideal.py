@@ -1,4 +1,4 @@
-from math import e, sqrt, sin, cos, atan, pi, radians
+from math import e, sqrt, sin, cos, atan, degrees, pi
 from decimal import Decimal, getcontext
 import csv
 
@@ -94,16 +94,27 @@ while True:
     else:
         a = 3.14 + atan(r_x / r_y)
 
-    if h < 1000:
-        fi = radians(180)
+    if not blocked:
+        fi = pi + a - b
 
-    if 1000 <= h <= 45_000:
-        fi = radians(90 * (89_000 - h) / 44_000)
+    if 89 <= degrees(fi) <= 91:
+        blocked = True
+        b = pi + a - fi
 
-    if h > 45_000:
-        fi = radians(90)
-
-    b = pi + a - fi
+    if not blocked:
+        if V_y + V_otn * sin(a) > 0:
+            if degrees(atan((V_x - V_otn * cos(a)) / (V_y + V_otn * sin(a)))) <= 3 and angle:
+                b = 3.14 / 60
+            elif q > 600 and degrees(atan((V_x - V_otn * cos(a)) / (V_y + V_otn * sin(a)))) > 3 and angle:
+                b = atan((V_x - V_otn * cos(a)) / (V_y + V_otn * sin(a)))
+            elif q < 600 and degrees(atan((V_x - V_otn * cos(a)) / (V_y + V_otn * sin(a)))) > 3 and p > p0 / 2 and angle:
+                b = atan((V_x - V_otn * cos(a)) / (V_y + V_otn * sin(a)))
+            elif q < 600 and degrees(atan(V_x / V_y)) > 3 and p < p0 / 2 and angle:
+                b = atan(V_x / V_y)
+            else:
+                ...
+        else:
+            b = 3.14 + atan((V_x - V_otn * cos(a)) / (V_y + V_otn * sin(a)))
 
     if t >= 50 and not mass_changed:
         m0 = m0 - 3120
@@ -130,7 +141,7 @@ while True:
         enabled = True
         change_mass = True
 
-    if enabled and V >= 2106.5:
+    if 2106.5 <= V:
         break
 
     V_x0, V_y0, r_x0, r_y0, m0 = V_x, V_y, r_x, r_y, m
@@ -164,7 +175,7 @@ plt.title('Масса')
 plt.xlabel('Время (секунды)')
 plt.ylabel('Масса (кг)')
 plt.legend()
-plt.savefig('mass.png')
+plt.savefig('mass_ideal.png')
 
 plt.close()
 
@@ -175,7 +186,7 @@ plt.title('Скорость')
 plt.xlabel('Время (секунды)')
 plt.ylabel('Скорость (м/с)')
 plt.legend()
-plt.savefig('speed.png')
+plt.savefig('speed_ideal.png')
 
 plt.close()
 
@@ -186,4 +197,4 @@ plt.title('Высота')
 plt.xlabel('Время (секунды)')
 plt.ylabel('Высота (метры)')
 plt.legend()
-plt.savefig('height.png')
+plt.savefig('height_ideal.png')
